@@ -4,12 +4,12 @@ author: "Martin Převorovský, prevorov@natur.cuni.cz, http://www.GenoMik.cz"
 output: html_document
 ---
 
+EXPERIMENT DESCRIPTION TO BE ADDED
 
 ```{r setup, message=FALSE}
 library(rtracklayer)
 library(GenomicAlignments)
 library(DESeq2)
-library(gplots)
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -20,7 +20,7 @@ QC_dir <- './QC_RNA-seq/'
 QC_trim_dir <- './QC_trim_RNA-seq/'
 image_dir <- './images/'
 deg_dir <- './DEG_RNA-seq/'
-#genome_gff <- paste0(genome_dir, 'Schizosaccharomyces_pombe_all_chromosomes.gff3')
+genome_gff <- paste0(genome_dir, 'Homo_sapiens.GRCh38.103.chr.gff3.gz')
 ```
 
 Variables for shell scripts are stored in the file "shell_variables_RNA-seq.sh" and can be modified as needed:
@@ -51,15 +51,15 @@ done
 ```
 
 
-# human genome annotation and index
+# Getting the human genome annotation and index
 
-downloaded `r date()`
+Downloaded `r date()`.
 
-* GRCh38 genome annotation was downloaded from Ensembl
+* GRCh38 genome annotation was downloaded from Ensembl.
 
-* GRCh38 genome index for HISAT2 was downloaded from the Amazon open data repository
+* GRCh38 genome index for HISAT2 was downloaded from the Amazon open data repository.
 
-```{bash, message=FALSE, eval=FALSE}
+```{bash, message=FALSE, eval=TRUE}
 source shell_variables_RNA-seq.sh
 
 mkdir -p "${genome_dir}"
@@ -69,7 +69,8 @@ wget -N --no-verbose --directory-prefix="${genome_dir}"  http://ftp.ensembl.org/
 
 # genome index for HISAT2
 wget -N --no-verbose --directory-prefix="${genome_dir}" https://genome-idx.s3.amazonaws.com/hisat/grch38_tran.tar.gz
-
+tar -zxf "${genome_dir}grch38_tran.tar.gz" --strip-components 1 --directory "${genome_dir}"
+rm "${genome_dir}grch38_tran.tar.gz"
 
 # genome sequence
 #wget -N --no-verbose --directory-prefix="${genome_dir}" http://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.toplevel.fa.gz
@@ -79,7 +80,7 @@ wget -N --no-verbose --directory-prefix="${genome_dir}" https://genome-idx.s3.am
 
 # QC of raw sequence reads
 
-* strand-specific libraries were sequenced at the Institute of Molecular Genetics, Czech Academy of Sciences
+* strand-specific libraries were sequenced at the Institute of Molecular Genetics, Czech Academy of Sciences.
 
 * Technical quality of library construction and sequencing run was tested using fastQC.
 
@@ -88,7 +89,7 @@ fastqc --version
 multiqc --version
 ```
 
-```{bash, eval=FALSE}
+```{bash, eval=TRUE}
 source shell_variables_RNA-seq.sh
 
 mkdir -p "${QC_dir}"
@@ -105,26 +106,28 @@ Results of QC:
 
 * 76 nt SE reads
 
-* 17.2-22.1M reads per sample
+* 16.9-2.3M reads per sample
 
 * read quality scores deteriorate towards the 3' end, trimming will be needed
 
-* very small adapter contamination detected (in < 1% reads) and will be trimmed
+* small adapter contamination detected (in <4% reads) and will be trimmed
 
-* all samples give an error on read duplication levels (normal for RNA-seq from a small genome)
+* all samples give warning/error on read duplication levels (expected for RNA-seq)
 
-* all FASTQ files give warning/error on per base sequence content (normal for random-primed RT)
+* all samples give warning on per base sequence content (normal for random-primed RT)
 
-* 6 FASTQ files give warning on overrepresented sequences (TruSeq adapters)
+* all samples give warning/error on overrepresented sequences (TruSeq adapters, homopolymers)
+
+* 14 samples give warning on GC content (all 24 profiles look similar and are NOT a nice bell-shaped curve)
 
 
 # Read trimming
 
-* remove Illumina adapters
+* Remove Illumina adapters.
 
-* trim parts of the reads where average base quality in a 4 nt window drops below 20
+* Trim parts of the reads where average base quality in a 4 nt window drops below 20.
 
-* only keep trimmed reads that are at least 20 nt long
+* Only keep trimmed reads that are at least 20 nt long.
 
 ```{bash}
 source shell_variables_RNA-seq.sh
@@ -132,7 +135,7 @@ source shell_variables_RNA-seq.sh
 java -jar "${trimmomatic_dir}trimmomatic-0.39.jar" -version
 ```
 
-```{bash, eval=FALSE}
+```{bash, eval=TRUE}
 source shell_variables_RNA-seq.sh
 
 mkdir -p "${fastq_trim_dir}"
@@ -174,7 +177,7 @@ Results of QC:
 * 2 samples give warning on GC content (not sure why)
 
 
-# Read mapping into *S. pombe* genome
+# Read mapping into the human genome
 
 ```{bash}
 hisat2 --version
@@ -371,91 +374,6 @@ res.sig <- res[which(res$padj <= padj_threshold), ]
 res.sig <- res.sig[order(res.sig$log2FoldChange), ]
 write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_nse3mut-async.SIG.csv'), quote = FALSE)
 rm(res, res.sig, dds)
-```
-
-
-# DEG analysis
-
-* dbl2KO expression data were obtained from https://doi.org/10.1093/nar/gkab027 (supplementary table S3).
-
-```{r, eval=TRUE}
-fold_threshold <- log2(1.5)
-
-res.async <- read.csv(paste0(deg_dir, 'DESeq2results_nse3mut-async_vs_WT-async.SIG.csv'), row.names = 1)
-res.HU <- read.csv(paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_WT-HU.SIG.csv'), row.names = 1)
-res.nse3mut <- read.csv(paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_nse3mut-async.SIG.csv'), row.names = 1)
-dbl2 <- read.delim(paste0(deg_dir, 'dbl2_DEGs'), header = TRUE, stringsAsFactors = FALSE)
-
-res.async.up <- res.async[res.async$log2FoldChange >= fold_threshold, ]
-res.async.down <- res.async[res.async$log2FoldChange <= -1 * fold_threshold, ]
-write.csv(res.async.up, file = paste0(deg_dir, 'async_UP_stringent.csv'), quote = FALSE)
-write.csv(res.async.down, file = paste0(deg_dir, 'async_DOWN_stringent.csv'), quote = FALSE)
-
-res.HU.up <- res.HU[res.HU$log2FoldChange >= fold_threshold, ]
-res.HU.down <- res.HU[res.HU$log2FoldChange <= -1 * fold_threshold, ]
-write.csv(res.HU.up, file = paste0(deg_dir, 'HU_UP_stringent.csv'), quote = FALSE)
-write.csv(res.HU.down, file = paste0(deg_dir, 'HU_DOWN_stringent.csv'), quote = FALSE)
-
-res.nse3mut.up <- res.nse3mut[res.nse3mut$log2FoldChange >= fold_threshold, ]
-res.nse3mut.down <- res.nse3mut[res.nse3mut$log2FoldChange <= -1 * fold_threshold, ]
-
-dbl2.up <- dbl2[dbl2$fold.change.dbl2.wt >= 2 ^ fold_threshold, ]
-dbl2.down <- dbl2[dbl2$fold.change.dbl2.wt <= round(1 / (2 ^ fold_threshold), 2), ]
-
-venn(list(nse3mut_async_DOWN = rownames(res.async.down), 
-          nse3mut_HU_DOWN = rownames(res.HU.down),
-          dbl2_DOWN = dbl2.down$systematic.ID))
-tmp <- venn(list(nse3mut_async_UP = rownames(res.async.up), 
-                 nse3mut_HU_UP = rownames(res.HU.up), 
-                 dbl2_UP = dbl2.up$systematic.ID))
-core_shared <- attr(tmp, 'intersections')$`nse3mut_async_UP:nse3mut_HU_UP:dbl2_UP`
-
-barplot(c(nrow(res.async.up), nrow(res.HU.up), nrow(dbl2.up), length(core_shared)),
-        ylab = 'genes',
-        main = 'UPregulated DEGs',
-        names.arg = c('nse3\nasync', 'nse3\nHU', 'dbl2', 'shared\nby_all'),
-        las = 3)
-barplot(c(nrow(res.async.up[grep('SPNCRNA', rownames(res.async.up)), ]), 
-          nrow(res.HU.up[grep('SPNCRNA', rownames(res.HU.up)), ]), 
-          nrow(dbl2.up[grep('SPNCRNA', dbl2.up$systematic.ID), ]),
-          length(grep('SPNCRNA', core_shared))),
-        add = TRUE, col = 'black')
-legend('topright', legend = c('other', 'ncRNA'), fill = c('grey', 'black'), bty = 'n')
-
-nse4_ChIP <- read.delim('./../Nse4_ChIP-seq_in_saga/genome/wt_filtered.narrowPeak.mRNA_overlaps.bed', 
-                        header = FALSE, stringsAsFactors = FALSE)
-nse4_ChIP <- unlist(strsplit(nse4_ChIP[, 4], 'Parent='))
-nse4_ChIP <- nse4_ChIP[grep('ID=', nse4_ChIP, invert = TRUE)]
-
-venn(list(nse3mut_async_UP = rownames(res.async.up), 
-          nse3mut_HU_UP = rownames(res.HU.up), 
-          dbl2_UP = dbl2.up$systematic.ID,
-          nse4_ChIP = nse4_ChIP))
-
-venn(list(nse3mut_async_DOWN = rownames(res.async.down), 
-          nse3mut_HU_DOWN = rownames(res.HU.down), 
-          dbl2_DOWN = dbl2.down$systematic.ID,
-          nse4_ChIP = nse4_ChIP))
-```
-
-Less stringent DEG filtering (all up/down DEGs called by DESeq2 are used, no filtering on fold change)
-
-```{r, eval = TRUE}
-res.async.up.all <- res.async[res.async$log2FoldChange > 0, ]
-res.async.down.all <- res.async[res.async$log2FoldChange < 0, ]
-
-res.HU.up.all <- res.HU[res.HU$log2FoldChange > 0, ]
-res.HU.down.all <- res.HU[res.HU$log2FoldChange < 0, ]
-
-venn(list(nse3mut_async_UP = rownames(res.async.up.all), 
-          nse3mut_HU_UP = rownames(res.HU.up.all), 
-          #dbl2_UP = dbl2.up$systematic.ID,
-          nse4_ChIP = nse4_ChIP))
-
-venn(list(nse3mut_async_DOWN = rownames(res.async.down.all), 
-          nse3mut_HU_DOWN = rownames(res.HU.down.all), 
-          #dbl2_DOWN = dbl2.down$systematic.ID,
-          nse4_ChIP = nse4_ChIP))
 ```
 
 
