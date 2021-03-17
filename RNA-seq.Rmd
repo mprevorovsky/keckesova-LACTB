@@ -166,15 +166,13 @@ multiqc -f -m fastqc -i RNA-seq_trimmed -o "${QC_trim_dir}" "${QC_trim_dir}"
 
 Results of QC:
 
-* dropped 4.6-6.6% of reads
+* dropped 2.5-4% of reads
 
-* 20-65 nt reads (vast majority of reads are >63 nt)
+* 20-76 nt reads (vast majority of reads are >72 nt)
 
 * read quality scores now OK
 
 * adapters were removed
-
-* 2 samples give warning on GC content (not sure why)
 
 
 # Read mapping into the human genome
@@ -187,10 +185,6 @@ samtools --version
 ```{bash, eval=FALSE}
 source shell_variables_RNA-seq.sh
 
-# build HISAT2 index
-hisat2-build --quiet -p "${CPU}" "${genome}" "${genome}"
-
-# map
 mkdir -p "${bam_dir}"
 mapfile -t fastq_files < <(ls -1 "${fastq_trim_dir}")
 for i in ${fastq_files[@]};
