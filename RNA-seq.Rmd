@@ -181,7 +181,7 @@ Results of QC:
 hisat2 --version
 samtools --version
 ```
-
+  
 ```{bash, eval=FALSE}
 source shell_variables_RNA-seq.sh
 
