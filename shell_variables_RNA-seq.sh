@@ -16,6 +16,8 @@ fastq_file_ext="\.fastq\.gz$"
 genome_dir="./genome/"
 # file containing reference genome sequence
 #genome="${genome_dir}Homo_sapiens.GRCh38.dna.toplevel.fa"
+# prefix for hisat2 index files
+index="${genome_dir}index/genome_tran"
 # BAM file directory
 bam_dir="./BAM_RNA-seq/"
 # how to perform binning of genome coverage
