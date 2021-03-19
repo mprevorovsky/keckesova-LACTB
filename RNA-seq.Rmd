@@ -192,7 +192,7 @@ do
 	infile="${fastq_trim_dir}${i}"
 	outfile="${bam_dir}${i}.bam"
   echo "${outfile}"
-	hisat2 -x "${genome}" -U "${infile}" --threads "${CPU}" --max-intronlen 2600 -k 15 --summary-file "${outfile}.log" | samtools view -b -F 256 --threads "${CPU}" - | samtools sort --threads "${CPU}" -o "${outfile}" - 
+	hisat2 -x "${index}" -U "${infile}" --threads "${CPU}" --summary-file "${outfile}.log" | samtools view -b -F 256 --threads "${CPU}" - | samtools sort --threads "${CPU}" -o "${outfile}" - 
 	samtools index "${outfile}"
 	samtools view -c --threads "${CPU}" "${outfile}"
 done
@@ -200,9 +200,7 @@ done
 
 Notes
 
-* Since signal is expected at repeat regions, HISAT was set to search for up to 15 matching positions (this allows even for testing all Tf2 and dh/dg repeats in the genome), then only the best (marked as primary by HISAT) alignment was kept.
-
-* Mapping rate was >98%.
+* Mapping rate was >94%.
 
 
 # QC of mapped samples
