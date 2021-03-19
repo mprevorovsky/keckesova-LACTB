@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CPU threads
-CPU=7
+CPU=5
 # output directory for raw read QC
 QC_dir="./QC_RNA-seq/"
 # output directory for quality-trimmed read QC
