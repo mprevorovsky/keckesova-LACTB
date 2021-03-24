@@ -205,6 +205,7 @@ Notes
 
 # QC of mapped samples
 
+Step temporary suspended
 WARNING - completion of this step can take A LOT of time!
 
 ```{bash}
@@ -221,7 +222,6 @@ plotPCA -in "${bam_dir}${bam_summary_file}" -o "${image_dir}RNA-seq_plotPCA.pdf"
 plotCorrelation -in "${bam_dir}${bam_summary_file}" -o "${image_dir}RNA-seq_plotCorrelation.pdf" --corMethod pearson --whatToPlot heatmap --removeOutliers
 ```
 
-* Samples nicely cluster together according to attributes: asynchronous / synchronized, and WT / nse3mut.
 
 
 # Calculate genome coverage tracks
