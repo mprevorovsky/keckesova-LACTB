@@ -1,0 +1,26 @@
+sample	bam_file	cultivation_run	cell_line	doxycycline_conc	LACTB_expressed	LACTB_plasmid
+OVCAR8_LACTB_NO_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_NO_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	0	no	yes
+OVCAR8_LACTB_NO_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_NO_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	0	no	yes
+OVCAR8_LACTB_10_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	10	yes	yes
+OVCAR8_LACTB_10_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	10	yes	yes
+OVCAR8_LACTB_6_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_6_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	6	yes	yes
+OVCAR8_LACTB_6_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_6_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	6	yes	yes
+OVCAR8_10_DOX_1	./BAM_RNA-seq/OVCAR8_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	10	no	no
+OVCAR8_10_DOX_2	./BAM_RNA-seq/OVCAR8_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	10	no	no
+PEO4_LACTB_NO_DOX_1	./BAM_RNA-seq/PEO4_plus_LACTB_NO_DOX_1.fastq.gz.trim.fastq.gz.bam	1	PEO4	0	no	yes
+PEO4_LACTB_NO_DOX_2	./BAM_RNA-seq/PEO4_plus_LACTB_NO_DOX_2.fastq.gz.trim.fastq.gz.bam	2	PEO4	0	no	yes
+PEO4_LACTB_4_DOX_1	./BAM_RNA-seq/PEO4_plus_LACTB_plus_4_DOX_1.fastq.gz.trim.fastq.gz.bam	1	PEO4	4	yes	yes
+PEO4_LACTB_4_DOX_2	./BAM_RNA-seq/PEO4_plus_LACTB_plus_4_DOX_2.fastq.gz.trim.fastq.gz.bam	2	PEO4	4	yes	yes
+PEO4_LACTB_8_DOX_1	./BAM_RNA-seq/PEO4_plus_LACTB_plus_8_DOX_1.fastq.gz.trim.fastq.gz.bam	1	PEO4	8	yes	yes
+PEO4_LACTB_8_DOX_2	./BAM_RNA-seq/PEO4_plus_LACTB_plus_8_DOX_2.fastq.gz.trim.fastq.gz.bam	2	PEO4	8	yes	yes
+PEO4_8_DOX_1	./BAM_RNA-seq/PEO4_plus_8_DOX_1.fastq.gz.trim.fastq.gz.bam	1	PEO4	8	no	no
+PEO4_8_DOX_2	./BAM_RNA-seq/PEO4_plus_8_DOX_2.fastq.gz.trim.fastq.gz.bam	2	PEO4	8	no	no
+Primary_LACBT_6_DOX_1	./BAM_RNA-seq/Primary_plus_LACBT_plus_6_DOX_1.fastq.gz.trim.fastq.gz.bam	1	Primary	6	yes	yes
+Primary_LACBT_6_DOX_2	./BAM_RNA-seq/Primary_plus_LACBT_plus_6_DOX_2.fastq.gz.trim.fastq.gz.bam	2	Primary	6	yes	yes
+Primary_LACTB_NO_DOX_1	./BAM_RNA-seq/Primary_plus_LACTB_NO_DOX_1.fastq.gz.trim.fastq.gz.bam	1	Primary	0	no	yes
+Primary_LACTB_NO_DOX_2	./BAM_RNA-seq/Primary_plus_LACTB_NO_DOX_2.fastq.gz.trim.fastq.gz.bam	2	Primary	0	no	yes
+Primary_LACTB_10_DOX_1	./BAM_RNA-seq/Primary_plus_LACTB_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	Primary	10	yes	yes
+Primary_LACTB_10_DOX_2	./BAM_RNA-seq/Primary_plus_LACTB_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	Primary	10	yes	yes
+Primary_10_DOX_1	./BAM_RNA-seq/Primary_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	Primary	10	no	no
+Primary_10_DOX_2	./BAM_RNA-seq/Primary_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	Primary	10	no	no
+

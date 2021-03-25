@@ -4,7 +4,16 @@ author: "Martin Převorovský, prevorov@natur.cuni.cz, http://www.GenoMik.cz"
 output: html_document
 ---
 
-EXPERIMENT DESCRIPTION TO BE ADDED
+The aim of the experiment is to determine the impact on gene expression (find affected pathways) of LACTB overexpression in selected cancer cell lines.
+
+* The OVCAR8 cell line is known to react to LACTB overexpression by cell cycle arrest/cell death, and the PEO4 cell line reacts by differentiation. Primary cells do not react to LACTB overexpression and serve as a negative control.
+
+* LACTB is expressed from a doxycycline-inducible construct. Cells not bearing this construct serve as negative controls.
+
+* Different doses of doxycycline were used. In some cases, doxycycline was not added to cells, so LACTB expression was not triggered. Such samples also serve as negative controls.
+
+* There are two biological repeats available for each combination of experimental variables.
+
 
 ```{r setup, message=FALSE}
 library(rtracklayer)
@@ -193,7 +202,7 @@ do
 	outfile="${bam_dir}${i}.bam"
   echo "${outfile}"
 	hisat2 -x "${index}" -U "${infile}" --threads "${CPU}" --summary-file "${outfile}.log" | samtools view -b -F 256 --threads "${CPU}" - | samtools sort --threads "${CPU}" -o "${outfile}" - 
-	samtools index "${outfile}"
+	samtools index -@ "${CPU}" "${outfile}"
 	samtools view -c --threads "${CPU}" "${outfile}"
 done
 ```
@@ -205,7 +214,6 @@ Notes
 
 # QC of mapped samples
 
-Step temporary suspended
 WARNING - completion of this step can take A LOT of time!
 
 ```{bash}
@@ -223,7 +231,6 @@ plotCorrelation -in "${bam_dir}${bam_summary_file}" -o "${image_dir}RNA-seq_plot
 ```
 
 
-
 # Calculate genome coverage tracks
 
 ```{bash, eval=FALSE}
@@ -238,24 +245,13 @@ do
 	input_file="${bam_dir}${bam_files[${i}]}"
 	bamCoverage --binSize "${bin_size}" --normalizeUsing CPM -p "${CPU}" --bam "${input_file}" -o "${coverage_dir}${bam_files[${i}]}.bw"
 done
-
-# average coverage tracks across biological replicates
-samples=("WT_async" "WT_HU" "nse3mut_async" "nse3mut_HU")
-lib_IDs=("1|2|9|10" "7|8|15|16" "3|4|11|12" "5|6|13|14")
-for i in {0..3};
-do
-  mapfile -t bw_files < <(ls -1 -d "${coverage_dir}"* | grep -E "_(${lib_IDs[${i}]})_.*\.bam\.bw$")
-  wiggletools mean "${bw_files[@]}" | wigToBigWig -itemsPerSlot="${bin_size}" stdin "${genome_dir}chrom.sizes" "${coverage_dir}${samples[${i}]}.mean.bw"
-done
 ```
 
 Notes
 
-* Checked visually in IGV → OK.
+* Checked visually in IGV → OK.   ???
 
-* Samples are very coherent across replicates.
-
-* Stress genes are noticebly induced in HU.
+* Samples are very coherent across replicates.   ????
 
 
 # Identify differentially expressed genes
@@ -272,10 +268,9 @@ gff.genes <- gff[gff$type == 'gene', ]
 bam_files <- list.files(bam_dir, full.names = TRUE, pattern = '\\.bam$')
 bam <- BamFileList(bam_files, yieldSize = 1000000)
 
-sample_info <- read.delim('sampleInfo', stringsAsFactors = FALSE, header = TRUE, sep = '\t')
-sample_info[, 'cultivation_run'] <- factor(sample_info[, 'cultivation_run'])
-sample_info[, 'genotype'] <- factor(sample_info[, 'genotype'])
-sample_info[, 'sync'] <- factor(sample_info[, 'sync'])
+sample_info <- read.delim('sampleInfo', stringsAsFactors = FALSE, header = TRUE, sep = '\t',
+                          colClasses = c('character', 'character', 
+                                         'factor', 'factor', 'factor', 'factor', 'factor' ))
 names(bam) <- sample_info$sample_ID
 
 se <- summarizeOverlaps(gff.genes,
@@ -286,7 +281,12 @@ se <- summarizeOverlaps(gff.genes,
                         preprocess.reads = invertStrand)
 rownames(se) <- gff.genes$ID
 colData(se) <- cbind(colData(se), sample_info)
-#save(se, file = 'se.rda')
+save(se, file = 'se.rda')
+
+#########
+# stop here and let's evaluate the count table together
+#########
+
 #load(file = 'se.rda')
 
 counts <- assay(se)
