@@ -23,4 +23,3 @@ Primary_LACTB_10_DOX_1	./BAM_RNA-seq/Primary_plus_LACTB_plus_10_DOX_1.fastq.gz.t
 Primary_LACTB_10_DOX_2	./BAM_RNA-seq/Primary_plus_LACTB_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	Primary	10	yes	yes
 Primary_LACBT_6_DOX_1	./BAM_RNA-seq/Primary_plus_LACBT_plus_6_DOX_1.fastq.gz.trim.fastq.gz.bam	1	Primary	6	yes	yes
 Primary_LACBT_6_DOX_2	./BAM_RNA-seq/Primary_plus_LACBT_plus_6_DOX_2.fastq.gz.trim.fastq.gz.bam	2	Primary	6	yes	yes
-
