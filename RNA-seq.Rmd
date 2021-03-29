@@ -16,9 +16,11 @@ The aim of the experiment is to determine the impact on gene expression (find af
 
 
 ```{r setup, message=FALSE}
-library(rtracklayer)
-library(GenomicAlignments)
-library(DESeq2)
+library('rtracklayer')
+library('GenomicAlignments')
+library('DESeq2')
+library('RColorBrewer')
+library('pheatmap')
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -212,25 +214,6 @@ Notes
 * Mapping rate was >94%.
 
 
-# QC of mapped samples
-
-WARNING - completion of this step can take A LOT of time!
-
-```{bash}
-deeptools --version
-```
-
-```{bash, eval=FALSE}
-source shell_variables_RNA-seq.sh
-
-mkdir -p "${image_dir}"
-mapfile -t bam_files < <(ls -1 -d "${bam_dir}"* | grep "\.bam$")
-multiBamSummary bins --binSize "${bin_size}" -p "${CPU}" -o "${bam_dir}${bam_summary_file}" --bamfiles "${bam_files[@]}"
-plotPCA -in "${bam_dir}${bam_summary_file}" -o "${image_dir}RNA-seq_plotPCA.pdf"
-plotCorrelation -in "${bam_dir}${bam_summary_file}" -o "${image_dir}RNA-seq_plotCorrelation.pdf" --corMethod pearson --whatToPlot heatmap --removeOutliers
-```
-
-
 # Calculate genome coverage tracks
 
 ```{bash, eval=FALSE}
@@ -249,9 +232,11 @@ done
 
 Notes
 
-* Checked visually in IGV → OK.   ???
+* Checked visually in IGV.
 
-* Samples are very coherent across replicates.   ????
+* LACTB expression profiles DO NOT look consistent with expectations in the OVCAR8 group of samples.
+
+* LACTB is super-overexpressed in PEO4 compared to the OVCAR8 and Primary cell lines.
 
 
 # Identify differentially expressed genes
@@ -281,13 +266,9 @@ se <- summarizeOverlaps(gff.genes,
                         preprocess.reads = invertStrand)
 rownames(se) <- gff.genes$ID
 colData(se) <- cbind(colData(se), sample_info)
+
 save(se, file = 'se.rda')
-
-#########
-# stop here and let's evaluate the count table together
-#########
-
-#load(file = 'se.rda')
+load(file = 'se.rda')
 
 counts <- assay(se)
 
@@ -311,6 +292,58 @@ write.csv(counts.norm, file = paste0(coverage_dir, 'counts.TPM-normalized.csv'),
 rm(gene_widths, count_sums)
 ```
 
+## QC of count table data
+
+```{r, eval=TRUE}
+dds <- DESeqDataSet(se, 
+                    design = ~ cultivation_run + 
+                      doxycycline_conc +
+                      cell_line +
+                      LACTB_expressed)
+dds <- DESeq(dds)
+rld <- rlog(dds, blind = FALSE)
+
+sampleDists <- dist(t(assay(rld)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- rld$sample_ID
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pdf(paste0(image_dir, 'heatmap_sampleDist_rlog.pdf'))
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors)
+dev.off()
+
+pdf(paste0(image_dir, 'PCA_rlog.pdf'))
+plotPCA(rld, intgroup = c('cell_line', 'doxycycline_conc', 'LACTB_expressed'))
+plotPCA(rld[, rld$cell_line == 'OVCAR8'], intgroup = c('cell_line', 'doxycycline_conc', 'LACTB_expressed'))
+plotPCA(rld[, rld$cell_line == 'PEO4'], intgroup = c('cell_line', 'doxycycline_conc', 'LACTB_expressed'))
+plotPCA(rld[, rld$cell_line == 'Primary'], intgroup = c('cell_line', 'doxycycline_conc', 'LACTB_expressed'))
+dev.off()
+
+pdf(paste0(image_dir, 'barplot_LACTB_counts.TPM-norm.pdf'))
+par(mar = c(9, 4, 4, 2))
+barplot(as.numeric(counts.norm[which(counts.norm[, 'gene_name'] == 'LACTB'), 
+                               c(2:5, 8:9, 6:7, 10:19, 22:23, 20:21, 24:25)]),
+        names.arg = colnames(counts.norm)[c(2:5, 8:9, 6:7, 10:19, 22:23, 20:21, 24:25)], 
+        las = 3, cex.names = 0.7,
+        col = c(rep('grey75', 8), rep('grey50', 8), rep('black', 8)))
+barplot(as.numeric(counts.norm[which(counts.norm[, 'gene_name'] == 'LACTB'), 
+                               c(2:5, 8:9, 6:7, 10:19, 22:23, 20:21, 24:25)]),
+        names.arg = colnames(counts.norm)[c(2:5, 8:9, 6:7, 10:19, 22:23, 20:21, 24:25)], 
+        las = 3, cex.names = 0.7,
+        col = c(rep('grey75', 8), rep('grey50', 8), rep('black', 8)),
+        ylim = c(0, 50))
+dev.off()
+```
+
+
+
+#####
+### stop here until LACTB expression issues are clarified
+#####
+
 ## DEG calling
 
 ```{r, eval=TRUE}
@@ -333,38 +366,6 @@ write.csv(res, file = paste0(deg_dir, 'DESeq2results_nse3mut-async_vs_WT-async.c
 res.sig <- res[which(res$padj <= padj_threshold), ]
 res.sig <- res.sig[order(res.sig$log2FoldChange), ]
 write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_nse3mut-async_vs_WT-async.SIG.csv'), quote = FALSE)
-rm(res, res.sig, dds)
-
-# nse3mut HU vs WT HU
-dds <- DESeqDataSet(se, design = ~ cultivation_run + genotype)
-dds <- dds[, dds$sync =='HU'] # remove asynchronous samples
-dds$sync <- droplevels(dds$sync) # remove factor levels without samples
-dds$genotype <- relevel(dds$genotype, ref = 'WT') # change order of factor levels to get mut/WT fold change (= define the reference)
-dds <- DESeq(dds)
-res <- results(dds, alpha = padj_threshold)
-summary(res[res$padj <= padj_threshold & !is.na(res$padj), ])
-res <- cbind(counts[, 'gene_name'], res)
-colnames(res)[1] <- 'gene_name'
-write.csv(res, file = paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_WT-HU.csv'), quote = FALSE)
-res.sig <- res[which(res$padj <= padj_threshold), ]
-res.sig <- res.sig[order(res.sig$log2FoldChange), ]
-write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_WT-HU.SIG.csv'), quote = FALSE)
-rm(res, res.sig, dds)
-
-# nse3mut HU vs nse3mut async
-dds <- DESeqDataSet(se, design = ~ cultivation_run + sync)
-dds <- dds[, dds$genotype =='nse3mut'] # remove WT samples
-dds$genotype <- droplevels(dds$genotype) # remove factor levels without samples
-dds$sync <- relevel(dds$sync, ref = 'async') # change order of factor levels to get HU/async fold change (= define the reference)
-dds <- DESeq(dds)
-res <- results(dds, alpha = padj_threshold)
-summary(res[res$padj <= padj_threshold & !is.na(res$padj), ])
-res <- cbind(counts[, 'gene_name'], res)
-colnames(res)[1] <- 'gene_name'
-write.csv(res, file = paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_nse3mut-async.csv'), quote = FALSE)
-res.sig <- res[which(res$padj <= padj_threshold), ]
-res.sig <- res.sig[order(res.sig$log2FoldChange), ]
-write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_nse3mut-HU_vs_nse3mut-async.SIG.csv'), quote = FALSE)
 rm(res, res.sig, dds)
 ```
 

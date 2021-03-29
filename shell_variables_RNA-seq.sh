@@ -28,3 +28,4 @@ image_dir="./images/"
 coverage_dir="./coverage_RNA-seq/"
 # directory where Trimmomatic is installed
 trimmomatic_dir="/opt/Trimmomatic-0.39/"
+
