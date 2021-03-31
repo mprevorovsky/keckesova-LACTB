@@ -338,11 +338,10 @@ barplot(as.numeric(counts.norm[which(counts.norm[, 'gene_name'] == 'LACTB'),
 dev.off()
 ```
 
+* OVCAR8-related samples do not show expected LACTB transcript levels (higher expression values come from the sample without LACTB transgene). This will need to clarified.
 
+* PEO4 and Primary samples show expected trends in LACTB transcript levels. But LACTB expression upon induction is MUCH higher in PEO4 cells than in Primary cells, but LACTB is mostly regulated at post-transcriptional level, so a western blot will be needed to compare LACTB protein levels in the respective sample groups.
 
-#####
-### stop here until LACTB expression issues are clarified
-#####
 
 ## DEG calling
 
@@ -352,22 +351,44 @@ padj_threshold <- 0.05
 
 dir.create(deg_dir, showWarnings = FALSE)
 
-# nse3mut asynchronous vs WT asynchronous
-dds <- DESeqDataSet(se, design = ~ cultivation_run + genotype)
-dds <- dds[, dds$sync =='async'] # remove HU samples
-dds$sync <- droplevels(dds$sync) # remove factor levels without samples
-dds$genotype <- relevel(dds$genotype, ref = 'WT') # change order of factor levels to get mut/WT fold change (= define the reference)
+# PEO4 LACTB non-expressing vs expressing
+dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
+dds <- dds[, dds$cell_line =='PEO4'] # remove OVCAR8 and Primary samples
+dds$cell_line <- droplevels(dds$cell_line) # remove factor levels without samples
+dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
 dds <- DESeq(dds)
 res <- results(dds, alpha = padj_threshold)
 summary(res[res$padj <= padj_threshold & !is.na(res$padj), ])
 res <- cbind(counts[, 'gene_name'], res)
 colnames(res)[1] <- 'gene_name'
-write.csv(res, file = paste0(deg_dir, 'DESeq2results_nse3mut-async_vs_WT-async.csv'), quote = FALSE)
+write.csv(res, file = paste0(deg_dir, 'DESeq2results_PEO4_expressing_vs_PEO4_non-expressing.csv'), quote = FALSE)
 res.sig <- res[which(res$padj <= padj_threshold), ]
 res.sig <- res.sig[order(res.sig$log2FoldChange), ]
-write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_nse3mut-async_vs_WT-async.SIG.csv'), quote = FALSE)
+write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_PEO4_expressing_vs_PEO4_non-expressing.SIG.csv'), quote = FALSE)
+rm(res, res.sig, dds)
+
+# Primary LACTB non-expressing vs expressing
+dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
+dds <- dds[, dds$cell_line =='Primary'] # remove OVCAR8 and PEO4 samples
+dds$cell_line <- droplevels(dds$cell_line) # remove factor levels without samples
+dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
+dds <- DESeq(dds)
+res <- results(dds, alpha = padj_threshold)
+summary(res[res$padj <= padj_threshold & !is.na(res$padj), ])
+res <- cbind(counts[, 'gene_name'], res)
+colnames(res)[1] <- 'gene_name'
+write.csv(res, file = paste0(deg_dir, 'DESeq2results_Primary_expressing_vs_Primary_non-expressing.csv'), quote = FALSE)
+res.sig <- res[which(res$padj <= padj_threshold), ]
+res.sig <- res.sig[order(res.sig$log2FoldChange), ]
+write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_Primary_expressing_vs_Primary_non-expressing.SIG.csv'), 
+          quote = FALSE)
 rm(res, res.sig, dds)
 ```
+
+
+# DEG analysis
+
+* Compare PEO4 DEGs vs Primary DEGs and discard any overlap. DEGs unique to PEO4 should be LACTB-dependent and should be related to the PEO4 differentiation phenotype (since LACTB overexpression has no phenotype in Primary cells).
 
 
 ***
