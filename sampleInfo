@@ -1,10 +1,10 @@
 sample_ID	bam_file	cultivation_run	cell_line	doxycycline_conc	LACTB_expressed	LACTB_plasmid
-OVCAR8_10_DOX_1	./BAM_RNA-seq/OVCAR8_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	10	no	no
-OVCAR8_10_DOX_2	./BAM_RNA-seq/OVCAR8_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	10	no	no
+OVCAR8_LACTB_10_DOX_1	./BAM_RNA-seq/OVCAR8_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	10	no	no
+OVCAR8_LACTB_10_DOX_2	./BAM_RNA-seq/OVCAR8_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	10	no	no
 OVCAR8_LACTB_NO_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_NO_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	0	no	yes
 OVCAR8_LACTB_NO_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_NO_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	0	no	yes
-OVCAR8_LACTB_10_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	10	yes	yes
-OVCAR8_LACTB_10_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	10	yes	yes
+OVCAR8_10_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_10_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	10	yes	yes
+OVCAR8_10_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_10_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	10	yes	yes
 OVCAR8_LACTB_6_DOX_1	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_6_DOX_1.fastq.gz.trim.fastq.gz.bam	1	OVCAR8	6	yes	yes
 OVCAR8_LACTB_6_DOX_2	./BAM_RNA-seq/OVCAR8_plus_LACTB_plus_6_DOX_2.fastq.gz.trim.fastq.gz.bam	2	OVCAR8	6	yes	yes
 PEO4_8_DOX_1	./BAM_RNA-seq/PEO4_plus_8_DOX_1.fastq.gz.trim.fastq.gz.bam	1	PEO4	8	no	no
