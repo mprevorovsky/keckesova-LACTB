@@ -295,6 +295,7 @@ rm(gene_widths, count_sums)
 ## QC of count table data
 
 ```{r, eval=TRUE}
+dir.create(image_dir)
 dds <- DESeqDataSet(se, 
                     design = ~ cultivation_run + 
                       doxycycline_conc +
