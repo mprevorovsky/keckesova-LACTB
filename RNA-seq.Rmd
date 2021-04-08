@@ -234,7 +234,7 @@ Notes
 
 * Checked visually in IGV.
 
-* LACTB expression profiles DO NOT look consistent with expectations in the OVCAR8 group of samples.
+* OVCAR8 samples were accidentally misnamed during preparation. Sample_ID column in 'sampleInfo' file is corrected accordingly for further processing and reflect real biological meaning of samples. Filenames are left intact.
 
 * LACTB is super-overexpressed in PEO4 compared to the OVCAR8 and Primary cell lines.
 
