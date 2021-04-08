@@ -339,9 +339,7 @@ barplot(as.numeric(counts.norm[which(counts.norm[, 'gene_name'] == 'LACTB'),
 dev.off()
 ```
 
-* OVCAR8-related samples do not show expected LACTB transcript levels (higher expression values come from the sample without LACTB transgene). This will need to clarified.
-
-* PEO4 and Primary samples show expected trends in LACTB transcript levels. But LACTB expression upon induction is MUCH higher in PEO4 cells than in Primary cells, but LACTB is mostly regulated at post-transcriptional level, so a western blot will be needed to compare LACTB protein levels in the respective sample groups.
+* All samples show expected trends in LACTB transcript levels. But LACTB expression upon induction is MUCH higher in PEO4 cells than in OVCAR8 and Primary cells, but LACTB is mostly regulated at post-transcriptional level, so a western blot will be needed to compare LACTB protein levels in the respective sample groups.
 
 
 ## DEG calling
