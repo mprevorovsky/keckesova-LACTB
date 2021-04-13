@@ -479,6 +479,7 @@ rm(dif_ways, dif_fold)
 * There are 16 intersections of OVCAR8 and Primary, 6 of them are regulated in the same direction.
 * There are 13 intersections of PEO4 and OVCAR8, 3 of them are regulated in the same direction (this line is a subject to change after PEOvsPrimary and OVCARvsPrimary overlaps will be removed)
 
+
 ```{r}
 sessionInfo()
 ```
