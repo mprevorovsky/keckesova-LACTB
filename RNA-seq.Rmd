@@ -399,16 +399,85 @@ write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_Primary_expressing_vs_P
           quote = FALSE)
 rm(res, res.sig, dds)
 ```
-
+* There are 2759 DEG in Primary, 1603 in PEO4 and only 62 in OVCAR8.
 
 # DEG analysis
 
 * Compare PEO4 DEGs vs Primary DEGs and discard any overlap. DEGs unique to PEO4 should be LACTB-dependent and should be related to the PEO4 differentiation phenotype (since LACTB overexpression has no phenotype in Primary cells).
 
-* There are 2759 DEG in Primary, 1603 in PEO4 and only 62 in OVCAR8.
+```{r, eval=TRUE}
+PEO4_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_PEO4_expressing_vs_PEO4_non-expressing.SIG.csv", header = TRUE, row.names = 1)
+Primary_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_Primary_expressing_vs_Primary_non-expressing.SIG.csv", header = TRUE, row.names = 1)
+OVCAR8_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_OVCAR8_expressing_vs_OVCAR8_non-expressing.SIG.csv", header = TRUE, row.names = 1)
 
+#PEO4_vs_Primary
+PEO4_in_Primary <- PEO4_DEG[which(rownames(PEO4_DEG)%in%rownames(Primary_DEG)),] #381 genes total
+PEO4_in_Primary <- PEO4_in_Primary[order(PEO4_in_Primary$gene_name),]
+Primary_in_PEO4 <- Primary_DEG[which(rownames(Primary_DEG)%in%rownames(PEO4_DEG)),]
+Primary_in_PEO4 <- Primary_in_PEO4[order(Primary_in_PEO4$gene_name),]
 
-***
+dif_ways <- (PEO4_in_Primary$log2FoldChange > 0) == (Primary_in_PEO4$log2FoldChange > 0) #detect if expression changes in the same way
+dif_fold <- abs(PEO4_in_Primary$log2FoldChange - Primary_in_PEO4$log2FoldChange) #calculate the fold difference in expression change
+
+PEO4_vs_Primary <- data.frame(gene_name = PEO4_in_Primary$gene_name, 
+                              PEO4_log2fold = PEO4_in_Primary$log2FoldChange, 
+                              Primary_log2fold = Primary_in_PEO4$log2FoldChange, 
+                              dif = dif_fold, 
+                              same_way = dif_ways,
+                              row.names = rownames(PEO4_in_Primary))
+PEO4_vs_Primary <- PEO4_vs_Primary[order(PEO4_vs_Primary$dif),]
+
+PEO4_vs_Primary_same_way = PEO4_vs_Primary[PEO4_vs_Primary$same_way,] #65 of them
+
+rm(dif_ways, dif_fold)
+
+#OVCAR8_vs_Primary
+OVCAR8_in_Primary <- OVCAR8_DEG[which(rownames(OVCAR8_DEG)%in%rownames(Primary_DEG)),] #16 genes total
+OVCAR8_in_Primary <- OVCAR8_in_Primary[order(OVCAR8_in_Primary$gene_name),]
+Primary_in_OVCAR8 <- Primary_DEG[which(rownames(Primary_DEG)%in%rownames(OVCAR8_DEG)),]
+Primary_in_OVCAR8 <- Primary_in_OVCAR8[order(Primary_in_OVCAR8$gene_name),]
+
+dif_ways <- (OVCAR8_in_Primary$log2FoldChange > 0) == (Primary_in_OVCAR8$log2FoldChange > 0) #detect if expression changes in the same way
+dif_fold <- abs(OVCAR8_in_Primary$log2FoldChange - Primary_in_OVCAR8$log2FoldChange) #calculate the fold difference in expression change
+
+OVCAR8_vs_Primary <- data.frame(gene_name = OVCAR8_in_Primary$gene_name, 
+                              OVCAR8_log2fold = OVCAR8_in_Primary$log2FoldChange, 
+                              Primary_log2fold = Primary_in_OVCAR8$log2FoldChange, 
+                              dif = dif_fold, 
+                              same_way = dif_ways,
+                              row.names = rownames(OVCAR8_in_Primary))
+OVCAR8_vs_Primary <- OVCAR8_vs_Primary[order(OVCAR8_vs_Primary$dif),]
+
+OVCAR8_vs_Primary_same_way = OVCAR8_vs_Primary[OVCAR8_vs_Primary$same_way,] #6 of them
+
+rm(dif_ways, dif_fold)
+
+#PEO4_vs_OVCAR8
+PEO4_in_OVCAR8 <- PEO4_DEG[which(rownames(PEO4_DEG)%in%rownames(OVCAR8_DEG)),] #13 genes total
+PEO4_in_OVCAR8 <- PEO4_in_OVCAR8[order(PEO4_in_OVCAR8$gene_name),]
+OVCAR8_in_PEO4 <- OVCAR8_DEG[which(rownames(OVCAR8_DEG)%in%rownames(PEO4_DEG)),]
+OVCAR8_in_PEO4 <- OVCAR8_in_PEO4[order(OVCAR8_in_PEO4$gene_name),]
+
+dif_ways <- (PEO4_in_OVCAR8$log2FoldChange > 0) == (OVCAR8_in_PEO4$log2FoldChange > 0) #detect if expression changes in the same way
+dif_fold <- abs(PEO4_in_OVCAR8$log2FoldChange - OVCAR8_in_PEO4$log2FoldChange) #calculate the fold difference in expression change
+
+PEO4_vs_OVCAR8 <- data.frame(gene_name = PEO4_in_OVCAR8$gene_name, 
+                              PEO4_log2fold = PEO4_in_OVCAR8$log2FoldChange, 
+                              OVCAR8_log2fold = OVCAR8_in_PEO4$log2FoldChange, 
+                              dif = dif_fold, 
+                              same_way = dif_ways,
+                              row.names = rownames(PEO4_in_OVCAR8))
+PEO4_vs_OVCAR8 <- PEO4_vs_OVCAR8[order(PEO4_vs_OVCAR8$dif),]
+
+PEO4_vs_OVCAR8_same_way = PEO4_vs_OVCAR8[PEO4_vs_OVCAR8$same_way,] #3 of them
+
+rm(dif_ways, dif_fold)
+
+```
+
+* There are 381 intersections of PEO4 and Primary, 65 of them are regulated in the same direction.
+* There are 16 intersections of OVCAR8 and Primary, 6 of them are regulated in the same direction.
+* There are 13 intersections of PEO4 and OVCAR8, 3 of them are regulated in the same direction (this line is a subject to change after PEOvsPrimary and OVCARvsPrimary overlaps will be removed)
 
 ```{r}
 sessionInfo()
