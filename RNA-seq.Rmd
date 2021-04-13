@@ -295,7 +295,7 @@ rm(gene_widths, count_sums)
 ## QC of count table data
 
 ```{r, eval=TRUE}
-dir.create(image_dir)
+dir.create(image_dir, showWarnings = FALSE)
 dds <- DESeqDataSet(se, 
                     design = ~ cultivation_run + 
                       doxycycline_conc +
@@ -427,7 +427,7 @@ PEO4_vs_Primary <- data.frame(gene_name = PEO4_in_Primary$gene_name,
                               row.names = rownames(PEO4_in_Primary))
 PEO4_vs_Primary <- PEO4_vs_Primary[order(PEO4_vs_Primary$dif),]
 
-PEO4_vs_Primary_same_way = PEO4_vs_Primary[PEO4_vs_Primary$same_way,] #65 of them
+PEO4_vs_Primary_same_way <- PEO4_vs_Primary[PEO4_vs_Primary$same_way,] #65 of them
 
 rm(dif_ways, dif_fold)
 
@@ -448,7 +448,7 @@ OVCAR8_vs_Primary <- data.frame(gene_name = OVCAR8_in_Primary$gene_name,
                               row.names = rownames(OVCAR8_in_Primary))
 OVCAR8_vs_Primary <- OVCAR8_vs_Primary[order(OVCAR8_vs_Primary$dif),]
 
-OVCAR8_vs_Primary_same_way = OVCAR8_vs_Primary[OVCAR8_vs_Primary$same_way,] #6 of them
+OVCAR8_vs_Primary_same_way <- OVCAR8_vs_Primary[OVCAR8_vs_Primary$same_way,] #6 of them
 
 rm(dif_ways, dif_fold)
 
@@ -469,7 +469,7 @@ PEO4_vs_OVCAR8 <- data.frame(gene_name = PEO4_in_OVCAR8$gene_name,
                               row.names = rownames(PEO4_in_OVCAR8))
 PEO4_vs_OVCAR8 <- PEO4_vs_OVCAR8[order(PEO4_vs_OVCAR8$dif),]
 
-PEO4_vs_OVCAR8_same_way = PEO4_vs_OVCAR8[PEO4_vs_OVCAR8$same_way,] #3 of them
+PEO4_vs_OVCAR8_same_way <- PEO4_vs_OVCAR8[PEO4_vs_OVCAR8$same_way,] #3 of them
 
 rm(dif_ways, dif_fold)
 
