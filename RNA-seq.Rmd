@@ -405,6 +405,8 @@ rm(res, res.sig, dds)
 
 * Compare PEO4 DEGs vs Primary DEGs and discard any overlap. DEGs unique to PEO4 should be LACTB-dependent and should be related to the PEO4 differentiation phenotype (since LACTB overexpression has no phenotype in Primary cells).
 
+* There are 2759 DEG in Primary, 1603 in PEO4 and only 62 in OVCAR8.
+
 
 ***
 
