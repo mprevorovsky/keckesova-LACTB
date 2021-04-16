@@ -407,13 +407,16 @@ rm(res, res.sig, dds)
 
 ```{r, eval=TRUE}
 PEO4_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_PEO4_expressing_vs_PEO4_non-expressing.SIG.csv", header = TRUE, row.names = 1)
+rownames(PEO4_DEG) <- substr(rownames(PEO4_DEG),6,20) #removing 'gene:' prefix
 Primary_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_Primary_expressing_vs_Primary_non-expressing.SIG.csv", header = TRUE, row.names = 1)
+rownames(Primary_DEG) <- substr(rownames(Primary_DEG),6,20)
 OVCAR8_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_OVCAR8_expressing_vs_OVCAR8_non-expressing.SIG.csv", header = TRUE, row.names = 1)
+rownames(OVCAR8_DEG) <- substr(rownames(OVCAR8_DEG),6,20)
 
 #PEO4_vs_Primary
-PEO4_in_Primary <- PEO4_DEG[which(rownames(PEO4_DEG)%in%rownames(Primary_DEG)),] #381 genes total
+PEO4_in_Primary <- PEO4_DEG[rownames(PEO4_DEG)%in%rownames(Primary_DEG),] #381 genes total
 PEO4_in_Primary <- PEO4_in_Primary[order(PEO4_in_Primary$gene_name),]
-Primary_in_PEO4 <- Primary_DEG[which(rownames(Primary_DEG)%in%rownames(PEO4_DEG)),]
+Primary_in_PEO4 <- Primary_DEG[rownames(Primary_DEG)%in%rownames(PEO4_DEG),]
 Primary_in_PEO4 <- Primary_in_PEO4[order(Primary_in_PEO4$gene_name),]
 
 dif_ways <- (PEO4_in_Primary$log2FoldChange > 0) == (Primary_in_PEO4$log2FoldChange > 0) #detect if expression changes in the same way
@@ -428,6 +431,34 @@ PEO4_vs_Primary <- data.frame(gene_name = PEO4_in_Primary$gene_name,
 PEO4_vs_Primary <- PEO4_vs_Primary[order(PEO4_vs_Primary$dif),]
 
 PEO4_vs_Primary_same_way <- PEO4_vs_Primary[PEO4_vs_Primary$same_way,] #65 of them
+
+#Removing same_way overlap with Primary, 
+PEO4_DEG <- PEO4_DEG[!rownames(PEO4_DEG)%in%rownames(PEO4_vs_Primary_same_way),] #1538 left
+PEO4_DEG_up <- PEO4_DEG[PEO4_DEG$log2FoldChange > 0,] #751
+write.csv(PEO4_DEG_up, "./DEG_RNA-seq/PEO4__upregulated.csv")
+PEO4_DEG_down <- PEO4_DEG[PEO4_DEG$log2FoldChange < 0,] #787
+write.csv(PEO4_DEG_down, "./DEG_RNA-seq/PEO4__downregulated.csv")
+
+#Collecting DEGs antiregulated in PEO4 and Primary
+PEO4_Primary_antipods <- PEO4_vs_Primary[!rownames(PEO4_vs_Primary)%in%rownames(PEO4_vs_Primary_same_way),] #316
+PEO4_Primary_antipods_up <- PEO4_Primary_antipods[PEO4_Primary_antipods$PEO4_log2fold > 0,] #131
+write.csv(PEO4_Primary_antipods_up, "./DEG_RNA-seq/PEO4_Primary_antipods_upregulated.csv")
+PEO4_Primary_antipods_down <- PEO4_Primary_antipods[PEO4_Primary_antipods$PEO4_log2fold < 0,] #185
+write.csv(PEO4_Primary_antipods_down, "./DEG_RNA-seq/PEO4_Primary_antipods_downregulated.csv")
+
+#Removing all overlaps with Primary
+PEO4_DEG_exclusive <- PEO4_DEG[!rownames(PEO4_DEG)%in%rownames(PEO4_in_Primary),] #1222
+PEO4_DEG_exclusive_up <- PEO4_DEG_exclusive[PEO4_DEG_exclusive$log2FoldChange > 0,] #620
+write.csv(PEO4_DEG_exclusive_up, "./DEG_RNA-seq/PEO4_DEG_exclusive_upregulated.csv")
+PEO4_DEG_exclusive_down <- PEO4_DEG_exclusive[PEO4_DEG_exclusive$log2FoldChange < 0,] #602
+write.csv(PEO4_DEG_exclusive_down, "./DEG_RNA-seq/PEO4_DEG_exclusive_downregulated.csv")
+
+#Removing DEGs with less than 1.5 fold change
+threshold <- 1.5
+PEO4_DEG_threshold_up <- PEO4_DEG_up[PEO4_DEG_up$log2FoldChange >= log2(threshold),] #439
+write.csv(PEO4_DEG_threshold_up, "./DEG_RNA-seq/PEO4_DEG__upregulated_threshold.csv")
+PEO4_DEG_threshlod_down <- PEO4_DEG_down[PEO4_DEG_down$log2FoldChange <= log2(threshold),] #785
+write.csv(PEO4_DEG_threshlod_down, "./DEG_RNA-seq/PEO4_DEG__downregulated_threshold.csv")
 
 rm(dif_ways, dif_fold)
 
