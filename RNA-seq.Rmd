@@ -234,7 +234,7 @@ Notes
 
 * Checked visually in IGV.
 
-* OVCAR8 samples were accidentally misnamed during preparation. Sample_ID column in 'sampleInfo' file is corrected accordingly for further processing and reflect real biological meaning of samples. Filenames are left intact.
+* It turned out that OVCAR8 samples were accidentally misnamed during preparation. Sample_ID column in 'sampleInfo' file was corrected accordingly for further processing and now reflects real biological meaning of samples. Original filenames were left unchaged for compatibility reasons.
 
 * LACTB is super-overexpressed in PEO4 compared to the OVCAR8 and Primary cell lines.
 
@@ -339,7 +339,7 @@ barplot(as.numeric(counts.norm[which(counts.norm[, 'gene_name'] == 'LACTB'),
 dev.off()
 ```
 
-* All samples show expected trends in LACTB transcript levels. But LACTB expression upon induction is MUCH higher in PEO4 cells than in OVCAR8 and Primary cells, but LACTB is mostly regulated at post-transcriptional level, so a western blot will be needed to compare LACTB protein levels in the respective sample groups.
+* All samples show the expected trends in LACTB transcript levels, but LACTB mRNA level upon induction is MUCH higher in PEO4 cells than in OVCAR8 and Primary cells. Since LACTB is mostly regulated at the post-transcriptional level, a western blot analysis of the original biological material was performed and confirmed comparable LACTB protein levels in all expressing samples across cell lines.
 
 
 ## DEG calling
@@ -352,8 +352,7 @@ dir.create(deg_dir, showWarnings = FALSE)
 
 # PEO4 LACTB non-expressing vs expressing
 dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
-dds <- dds[, dds$cell_line =='PEO4'] # remove OVCAR8 and Primary samples
-dds$cell_line <- droplevels(dds$cell_line) # remove factor levels without samples
+dds <- dds[, dds$cell_line == 'PEO4'] # remove OVCAR8 and Primary samples
 dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
 dds <- DESeq(dds)
 res <- results(dds, alpha = padj_threshold)
@@ -368,8 +367,7 @@ rm(res, res.sig, dds)
 
 # OVCAR8 LACTB non-expressing vs expressing
 dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
-dds <- dds[, dds$cell_line =='OVCAR8'] # remove PEO4 and Primary samples
-dds$cell_line <- droplevels(dds$cell_line) # remove factor levels without samples
+dds <- dds[, dds$cell_line == 'OVCAR8'] # remove PEO4 and Primary samples
 dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
 dds <- DESeq(dds)
 res <- results(dds, alpha = padj_threshold)
@@ -384,8 +382,7 @@ rm(res, res.sig, dds)
 
 # Primary LACTB non-expressing vs expressing
 dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
-dds <- dds[, dds$cell_line =='Primary'] # remove OVCAR8 and PEO4 samples
-dds$cell_line <- droplevels(dds$cell_line) # remove factor levels without samples
+dds <- dds[, dds$cell_line == 'Primary'] # remove OVCAR8 and PEO4 samples
 dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
 dds <- DESeq(dds)
 res <- results(dds, alpha = padj_threshold)
@@ -399,7 +396,9 @@ write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_Primary_expressing_vs_P
           quote = FALSE)
 rm(res, res.sig, dds)
 ```
-* There are 2759 DEG in Primary, 1603 in PEO4 and only 62 in OVCAR8.
+
+* There are 2759 DEGs in Primary, 1603 in PEO4 and only 62 in OVCAR8.
+
 
 # DEG analysis
 
@@ -435,30 +434,30 @@ PEO4_vs_Primary_same_way <- PEO4_vs_Primary[PEO4_vs_Primary$same_way,] #65 of th
 #Removing same_way overlap with Primary, 
 PEO4_DEG <- PEO4_DEG[!rownames(PEO4_DEG)%in%rownames(PEO4_vs_Primary_same_way),] #1538 left
 PEO4_DEG_up <- PEO4_DEG[PEO4_DEG$log2FoldChange > 0,] #751
-write.csv(PEO4_DEG_up, "./DEG_RNA-seq/PEO4__upregulated.csv")
+write.csv(PEO4_DEG_up, "./DEG_RNA-seq/PEO4_up.csv")
 PEO4_DEG_down <- PEO4_DEG[PEO4_DEG$log2FoldChange < 0,] #787
-write.csv(PEO4_DEG_down, "./DEG_RNA-seq/PEO4__downregulated.csv")
+write.csv(PEO4_DEG_down, "./DEG_RNA-seq/PEO4_down.csv")
 
 #Collecting DEGs antiregulated in PEO4 and Primary
 PEO4_Primary_antipods <- PEO4_vs_Primary[!rownames(PEO4_vs_Primary)%in%rownames(PEO4_vs_Primary_same_way),] #316
 PEO4_Primary_antipods_up <- PEO4_Primary_antipods[PEO4_Primary_antipods$PEO4_log2fold > 0,] #131
-write.csv(PEO4_Primary_antipods_up, "./DEG_RNA-seq/PEO4_Primary_antipods_upregulated.csv")
+write.csv(PEO4_Primary_antipods_up, "./DEG_RNA-seq/PEO4_up_Primary_down.csv")
 PEO4_Primary_antipods_down <- PEO4_Primary_antipods[PEO4_Primary_antipods$PEO4_log2fold < 0,] #185
-write.csv(PEO4_Primary_antipods_down, "./DEG_RNA-seq/PEO4_Primary_antipods_downregulated.csv")
+write.csv(PEO4_Primary_antipods_down, "./DEG_RNA-seq/PEO4_down_Primary_up.csv")
 
 #Removing all overlaps with Primary
 PEO4_DEG_exclusive <- PEO4_DEG[!rownames(PEO4_DEG)%in%rownames(PEO4_in_Primary),] #1222
 PEO4_DEG_exclusive_up <- PEO4_DEG_exclusive[PEO4_DEG_exclusive$log2FoldChange > 0,] #620
-write.csv(PEO4_DEG_exclusive_up, "./DEG_RNA-seq/PEO4_DEG_exclusive_upregulated.csv")
+write.csv(PEO4_DEG_exclusive_up, "./DEG_RNA-seq/PEO4_up_Primary_unchanged.csv")
 PEO4_DEG_exclusive_down <- PEO4_DEG_exclusive[PEO4_DEG_exclusive$log2FoldChange < 0,] #602
-write.csv(PEO4_DEG_exclusive_down, "./DEG_RNA-seq/PEO4_DEG_exclusive_downregulated.csv")
+write.csv(PEO4_DEG_exclusive_down, "./DEG_RNA-seq/PEO4_down_Primary_unchanged.csv")
 
 #Removing DEGs with less than 1.5 fold change
 threshold <- 1.5
 PEO4_DEG_threshold_up <- PEO4_DEG_up[PEO4_DEG_up$log2FoldChange >= log2(threshold),] #439
-write.csv(PEO4_DEG_threshold_up, "./DEG_RNA-seq/PEO4_DEG__upregulated_threshold.csv")
+write.csv(PEO4_DEG_threshold_up, "./DEG_RNA-seq/PEO4_up_1.5x.csv")
 PEO4_DEG_threshlod_down <- PEO4_DEG_down[PEO4_DEG_down$log2FoldChange <= log2(threshold),] #785
-write.csv(PEO4_DEG_threshlod_down, "./DEG_RNA-seq/PEO4_DEG__downregulated_threshold.csv")
+write.csv(PEO4_DEG_threshlod_down, "./DEG_RNA-seq/PEO4_down_1.5x.csv")
 
 rm(dif_ways, dif_fold)
 
@@ -503,15 +502,15 @@ PEO4_vs_OVCAR8 <- PEO4_vs_OVCAR8[order(PEO4_vs_OVCAR8$dif),]
 PEO4_vs_OVCAR8_same_way <- PEO4_vs_OVCAR8[PEO4_vs_OVCAR8$same_way,] #3 of them
 
 rm(dif_ways, dif_fold)
-
 ```
 
-* There are 381 intersections of PEO4 and Primary, 65 of them are regulated in the same direction.
-* There are 16 intersections of OVCAR8 and Primary, 6 of them are regulated in the same direction.
-* There are 13 intersections of PEO4 and OVCAR8, 3 of them are regulated in the same direction (this line is a subject to change after PEOvsPrimary and OVCARvsPrimary overlaps will be removed)
+* 381 DEGs are shared by the PEO4 and Primary cell lines, 65 of them are regulated in the same direction.
+
+* 16 DEGs are shared by the OVCAR8 and Primary cell lines, 6 of them are regulated in the same direction.
+
+* 13 DEGs are shared by the PEO4 and OVCAR8 cell lines, 3 of them are regulated in the same direction (this line is a subject to change after PEOvsPrimary and OVCARvsPrimary overlaps will be removed)
 
 
 ```{r}
 sessionInfo()
 ```
-
