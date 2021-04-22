@@ -479,6 +479,8 @@ OVCAR8_vs_Primary <- data.frame(gene_name = OVCAR8_in_Primary$gene_name,
 OVCAR8_vs_Primary <- OVCAR8_vs_Primary[order(OVCAR8_vs_Primary$dif),]
 
 OVCAR8_vs_Primary_same_way <- OVCAR8_vs_Primary[OVCAR8_vs_Primary$same_way,] #6 of them
+OVCAR8_DEG <- OVCAR8_DEG[!rownames(OVCAR8_DEG)%in%rownames(OVCAR8_vs_Primary_same_way),] #56 left
+write.csv(OVCAR8_DEG, "./DEG_RNA-seq/OVCAR_DEG.csv")
 
 rm(dif_ways, dif_fold)
 
