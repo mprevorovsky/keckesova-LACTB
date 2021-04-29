@@ -380,6 +380,21 @@ res.sig <- res.sig[order(res.sig$log2FoldChange), ]
 write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_OVCAR8_expressing_vs_OVCAR8_non-expressing.SIG.csv'), quote = FALSE)
 rm(res, res.sig, dds)
 
+# OVCAR8 LACTB 10DOX non-expressing vs expressing
+dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
+dds <- dds[, (dds$cell_line == 'OVCAR8')&(dds$doxycycline_conc == 10)] # remove PEO4 and Primary samples, and OVCAR NO-DOX and 6DOX samples
+dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
+dds <- DESeq(dds)
+res <- results(dds, alpha = padj_threshold)
+summary(res[res$padj <= padj_threshold & !is.na(res$padj), ])
+res <- cbind(counts[, 'gene_name'], res)
+colnames(res)[1] <- 'gene_name'
+write.csv(res, file = paste0(deg_dir, 'DESeq2results_OVCAR8_10DOX_expressing_vs_OVCAR8_non-expressing.csv'), quote = FALSE)
+res.sig <- res[which(res$padj <= padj_threshold), ]
+res.sig <- res.sig[order(res.sig$log2FoldChange), ]
+write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_OVCAR8_10DOX_expressing_vs_OVCAR8_non-expressing.SIG.csv'), quote = FALSE)
+rm(res, res.sig, dds)
+
 # Primary LACTB non-expressing vs expressing
 dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
 dds <- dds[, dds$cell_line == 'Primary'] # remove OVCAR8 and PEO4 samples
