@@ -389,10 +389,10 @@ res <- results(dds, alpha = padj_threshold)
 summary(res[res$padj <= padj_threshold & !is.na(res$padj), ])
 res <- cbind(counts[, 'gene_name'], res)
 colnames(res)[1] <- 'gene_name'
-write.csv(res, file = paste0(deg_dir, 'DESeq2results_OVCAR8_NOT0DOX_expressing_vs_OVCAR8_non-expressing.csv'), quote = FALSE)
+write.csv(res, file = paste0(deg_dir, 'DESeq2results_OVCAR8_NOT10DOX_expressing_vs_OVCAR8_non-expressing.csv'), quote = FALSE)
 res.sig <- res[which(res$padj <= padj_threshold), ]
 res.sig <- res.sig[order(res.sig$log2FoldChange), ]
-write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_OVCAR8_NOT0DOX_expressing_vs_OVCAR8_non-expressing.SIG.csv'), quote = FALSE)
+write.csv(res.sig, file = paste0(deg_dir, 'DESeq2results_OVCAR8_NOT10DOX_expressing_vs_OVCAR8_non-expressing.SIG.csv'), quote = FALSE)
 rm(res, res.sig, dds)
 
 # Primary LACTB non-expressing vs expressing
@@ -427,8 +427,8 @@ Primary_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_Primary_expressing_vs_Prima
 rownames(Primary_DEG) <- substr(rownames(Primary_DEG),6,20)
 OVCAR8_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_OVCAR8_expressing_vs_OVCAR8_non-expressing.SIG.csv", header = TRUE, row.names = 1)
 rownames(OVCAR8_DEG) <- substr(rownames(OVCAR8_DEG),6,20)
-OVCAR8_NOT0DOX_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_OVCAR8_NOT0DOX_expressing_vs_OVCAR8_non-expressing.SIG.csv", header = TRUE, row.names = 1)
-rownames(OVCAR8_NOT0DOX_DEG) <- substr(rownames(OVCAR8_NOT0DOX_DEG),6,20)
+OVCAR8_NOT10DOX_DEG <- read.csv("./DEG_RNA-seq/DESeq2results_OVCAR8_NOT10DOX_expressing_vs_OVCAR8_non-expressing.SIG.csv", header = TRUE, row.names = 1)
+rownames(OVCAR8_NOT10DOX_DEG) <- substr(rownames(OVCAR8_NOT10DOX_DEG),6,20)
 
 #PEO4_vs_Primary
 PEO4_in_Primary <- PEO4_DEG[rownames(PEO4_DEG)%in%rownames(Primary_DEG),] #381 genes total
@@ -523,26 +523,54 @@ PEO4_vs_OVCAR8_same_way <- PEO4_vs_OVCAR8[PEO4_vs_OVCAR8$same_way,] #3 of them
 
 rm(dif_ways, dif_fold)
 
-#OVCAR8_NOT0DOX_vs_Primary
-OVCAR8_NOT0DOX_in_Primary <- OVCAR8_NOT0DOX_DEG[which(rownames(OVCAR8_NOT0DOX_DEG)%in%rownames(Primary_DEG)),] #1010 genes total
-OVCAR8_NOT0DOX_in_Primary <- OVCAR8_NOT0DOX_in_Primary[order(OVCAR8_NOT0DOX_in_Primary$gene_name),]
-Primary_in_OVCAR8_NOT0DOX <- Primary_DEG[which(rownames(Primary_DEG)%in%rownames(OVCAR8_NOT0DOX_DEG)),]
-Primary_in_OVCAR8_NOT0DOX <- Primary_in_OVCAR8_NOT0DOX[order(Primary_in_OVCAR8_NOT0DOX$gene_name),]
+#OVCAR8_NOT10DOX_vs_Primary
+OVCAR8_NOT10DOX_in_Primary <- OVCAR8_NOT10DOX_DEG[which(rownames(OVCAR8_NOT10DOX_DEG)%in%rownames(Primary_DEG)),] #1010 genes total
+OVCAR8_NOT10DOX_in_Primary <- OVCAR8_NOT10DOX_in_Primary[order(OVCAR8_NOT10DOX_in_Primary$gene_name),]
+Primary_in_OVCAR8_NOT10DOX <- Primary_DEG[which(rownames(Primary_DEG)%in%rownames(OVCAR8_NOT10DOX_DEG)),]
+Primary_in_OVCAR8_NOT10DOX <- Primary_in_OVCAR8_NOT10DOX[order(Primary_in_OVCAR8_NOT10DOX$gene_name),]
 
-dif_ways <- (OVCAR8_NOT0DOX_in_Primary$log2FoldChange > 0) == (Primary_in_OVCAR8_NOT0DOX$log2FoldChange > 0) #detect if expression changes in the same way
-dif_fold <- abs(OVCAR8_NOT0DOX_in_Primary$log2FoldChange - Primary_in_OVCAR8_NOT0DOX$log2FoldChange) #calculate the fold difference in expression change
+dif_ways <- (OVCAR8_NOT10DOX_in_Primary$log2FoldChange > 0) == (Primary_in_OVCAR8_NOT10DOX$log2FoldChange > 0) #detect if expression changes in the same way
+dif_fold <- abs(OVCAR8_NOT10DOX_in_Primary$log2FoldChange - Primary_in_OVCAR8_NOT10DOX$log2FoldChange) #calculate the fold difference in expression change
 
-OVCAR8_NOT0DOX_vs_Primary <- data.frame(gene_name = OVCAR8_NOT0DOX_in_Primary$gene_name, 
-                              OVCAR8_NOT0DOX_log2fold = OVCAR8_NOT0DOX_in_Primary$log2FoldChange, 
-                              Primary_log2fold = Primary_in_OVCAR8_NOT0DOX$log2FoldChange, 
+OVCAR8_NOT10DOX_vs_Primary <- data.frame(gene_name = OVCAR8_NOT10DOX_in_Primary$gene_name, 
+                              OVCAR8_NOT10DOX_log2fold = OVCAR8_NOT10DOX_in_Primary$log2FoldChange, 
+                              Primary_log2fold = Primary_in_OVCAR8_NOT10DOX$log2FoldChange, 
                               dif = dif_fold, 
                               same_way = dif_ways,
-                              row.names = rownames(OVCAR8_NOT0DOX_in_Primary))
-OVCAR8_NOT0DOX_vs_Primary <- OVCAR8_NOT0DOX_vs_Primary[order(OVCAR8_NOT0DOX_vs_Primary$dif),]
+                              row.names = rownames(OVCAR8_NOT10DOX_in_Primary))
+OVCAR8_NOT10DOX_vs_Primary <- OVCAR8_NOT10DOX_vs_Primary[order(OVCAR8_NOT10DOX_vs_Primary$dif),]
 
-OVCAR8_NOT0DOX_vs_Primary_same_way <- OVCAR8_NOT0DOX_vs_Primary[OVCAR8_NOT0DOX_vs_Primary$same_way,] #786 of them
-OVCAR8_NOT0DOX_DEG <- OVCAR8_NOT0DOX_DEG[!rownames(OVCAR8_NOT0DOX_DEG)%in%rownames(OVCAR8_NOT0DOX_vs_Primary_same_way),] #3766 left
-write.csv(OVCAR8_NOT0DOX_DEG, "./DEG_RNA-seq/OVCAR_NOT0DOX_DEG.csv")
+#Removing same_way overlap with Primary
+OVCAR8_NOT10DOX_vs_Primary_same_way <- OVCAR8_NOT10DOX_vs_Primary[OVCAR8_NOT10DOX_vs_Primary$same_way,] #786 of them
+OVCAR8_NOT10DOX_DEG <- OVCAR8_NOT10DOX_DEG[!rownames(OVCAR8_NOT10DOX_DEG)%in%rownames(OVCAR8_NOT10DOX_vs_Primary_same_way),] #3766 left
+write.csv(OVCAR8_NOT10DOX_DEG, "./DEG_RNA-seq/OVCAR_NOT10DOX_DEG.csv")
+
+#Sorting up- and downregulated
+OVCAR8_NOT10DOX_DEG_up <- OVCAR8_NOT10DOX_DEG[OVCAR8_NOT10DOX_DEG$log2FoldChange > 0,] #1955
+write.csv(OVCAR8_NOT10DOX_DEG_up, "./DEG_RNA-seq/OVCAR8_NOT10DOX_up.csv")
+OVCAR8_NOT10DOX_DEG_down <- OVCAR8_NOT10DOX_DEG[OVCAR8_NOT10DOX_DEG$log2FoldChange < 0,] #1821
+write.csv(OVCAR8_NOT10DOX_DEG_down, "./DEG_RNA-seq/OVCAR8_NOT10DOX_down.csv")
+
+#Collecting DEGs antiregulated in OVCAR8_NOT10DOX and Primary
+OVCAR8_NOT10DOX_Primary_antipods <- OVCAR8_NOT10DOX_vs_Primary[!rownames(OVCAR8_NOT10DOX_vs_Primary)%in%rownames(OVCAR8_NOT10DOX_vs_Primary_same_way),] #224
+OVCAR8_NOT10DOX_Primary_antipods_up <- OVCAR8_NOT10DOX_Primary_antipods[OVCAR8_NOT10DOX_Primary_antipods$OVCAR8_NOT10DOX_log2fold > 0,] #69
+write.csv(OVCAR8_NOT10DOX_Primary_antipods_up, "./DEG_RNA-seq/OVCAR8_NOT10DOX_up_Primary_down.csv")
+OVCAR8_NOT10DOX_Primary_antipods_down <- OVCAR8_NOT10DOX_Primary_antipods[OVCAR8_NOT10DOX_Primary_antipods$OVCAR8_NOT10DOX_log2fold < 0,] #155
+write.csv(OVCAR8_NOT10DOX_Primary_antipods_down, "./DEG_RNA-seq/OVCAR8_NOT10DOX_down_Primary_up.csv")
+
+#Removing all overlaps with Primary
+OVCAR8_NOT10DOX_DEG_exclusive <- OVCAR8_NOT10DOX_DEG[!rownames(OVCAR8_NOT10DOX_DEG)%in%rownames(OVCAR8_NOT10DOX_in_Primary),] #3552
+OVCAR8_NOT10DOX_DEG_exclusive_up <- OVCAR8_NOT10DOX_DEG_exclusive[OVCAR8_NOT10DOX_DEG_exclusive$log2FoldChange > 0,] #1886
+write.csv(OVCAR8_NOT10DOX_DEG_exclusive_up, "./DEG_RNA-seq/OVCAR8_NOT10DOX_up_Primary_unchanged.csv")
+OVCAR8_NOT10DOX_DEG_exclusive_down <- OVCAR8_NOT10DOX_DEG_exclusive[OVCAR8_NOT10DOX_DEG_exclusive$log2FoldChange < 0,] #1666
+write.csv(OVCAR8_NOT10DOX_DEG_exclusive_down, "./DEG_RNA-seq/OVCAR8_NOT10DOX_down_Primary_unchanged.csv")
+
+#Removing DEGs with less than 1.5 fold change
+threshold <- 1.5
+OVCAR8_NOT10DOX_DEG_threshold_up <- OVCAR8_NOT10DOX_DEG_up[OVCAR8_NOT10DOX_DEG_up$log2FoldChange >= log2(threshold),] #711
+write.csv(OVCAR8_NOT10DOX_DEG_threshold_up, "./DEG_RNA-seq/OVCAR8_NOT10DOX_up_1.5x.csv")
+OVCAR8_NOT10DOX_DEG_threshlod_down <- OVCAR8_NOT10DOX_DEG_down[OVCAR8_NOT10DOX_DEG_down$log2FoldChange <= log2(threshold),] #1821
+write.csv(OVCAR8_NOT10DOX_DEG_threshlod_down, "./DEG_RNA-seq/OVCAR8_NOT10DOX_down_1.5x.csv")
 
 rm(dif_ways, dif_fold)
 ```
