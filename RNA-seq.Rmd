@@ -382,7 +382,7 @@ rm(res, res.sig, dds)
 
 # OVCAR8 LACTB NOT10DOX non-expressing vs expressing
 dds <- DESeqDataSet(se, design = ~ cultivation_run + LACTB_expressed)
-dds <- dds[, (dds$cell_line == 'OVCAR8')&(!dds$doxycycline_conc == 10)] # remove PEO4 and Primary samples, and OVCAR NO-DOX and 6DOX samples
+dds <- dds[, (dds$cell_line == 'OVCAR8')&(!dds$doxycycline_conc == 10)] # remove PEO4 and Primary samples, and OVCAR 10DOX samples
 dds$LACTB_expressed <- relevel(dds$LACTB_expressed, ref = 'no') # change order of factor levels to get expressing/non-expressing fold change (= define the reference)
 dds <- DESeq(dds)
 res <- results(dds, alpha = padj_threshold)
